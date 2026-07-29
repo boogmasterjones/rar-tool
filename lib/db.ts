@@ -123,6 +123,15 @@ export async function listListings(filters: ListingFilters = {}): Promise<Listin
   return res.rows.map(rowToListing);
 }
 
+export async function getListingsByNiche(niche: string): Promise<Listing[]> {
+  const client = await db();
+  const res = await client.execute({
+    sql: "SELECT * FROM listings WHERE niche = ? ORDER BY city ASC",
+    args: [niche],
+  });
+  return res.rows.map(rowToListing);
+}
+
 export async function getListing(id: number): Promise<Listing | null> {
   const client = await db();
   const res = await client.execute({
