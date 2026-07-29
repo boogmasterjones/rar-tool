@@ -36,10 +36,18 @@ async function init(): Promise<void> {
       reviews TEXT NOT NULL DEFAULT '',
       verdict TEXT NOT NULL,
       notes TEXT NOT NULL DEFAULT '',
+      starred INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+  // Older databases created before "starred" existed won't have the column yet.
+  const columns = await db.execute("PRAGMA table_info(listings)");
+  const hasStarred = columns.rows.some((c) => c.name === "starred");
+  if (!hasStarred) {
+    await db.execute("ALTER TABLE listings ADD COLUMN starred INTEGER NOT NULL DEFAULT 0");
+  }
 
   const countRes = await db.execute("SELECT COUNT(*) as c FROM listings");
   const count = Number(countRes.rows[0].c);
@@ -74,6 +82,7 @@ export interface ListingFilters {
   tier?: string;
   state?: string;
   q?: string;
+  starred?: boolean;
   sort?: string;
   dir?: "asc" | "desc";
 }
@@ -109,6 +118,9 @@ export async function listListings(filters: ListingFilters = {}): Promise<Listin
     clauses.push("(niche LIKE ? OR city LIKE ? OR notes LIKE ?)");
     const like = `%${filters.q}%`;
     args.push(like, like, like);
+  }
+  if (filters.starred) {
+    clauses.push("starred = 1");
   }
 
   const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
@@ -183,6 +195,16 @@ export async function updateListing(id: number, data: NewListing): Promise<Listi
   return rowToListing(res.rows[0]);
 }
 
+export async function toggleStarred(id: number): Promise<Listing | null> {
+  const client = await db();
+  const res = await client.execute({
+    sql: `UPDATE listings SET starred = NOT starred WHERE id = ? RETURNING *`,
+    args: [id],
+  });
+  if (res.rows.length === 0) return null;
+  return rowToListing(res.rows[0]);
+}
+
 export async function deleteListing(id: number): Promise<boolean> {
   const client = await db();
   const res = await client.execute({
@@ -235,6 +257,7 @@ function rowToListing(row: any): Listing {
     reviews: String(row.reviews ?? ""),
     verdict: row.verdict,
     notes: String(row.notes ?? ""),
+    starred: Boolean(Number(row.starred ?? 0)),
     created_at: String(row.created_at),
     updated_at: String(row.updated_at),
   };

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getListingsByNiche } from "@/lib/db";
-import { deleteListingAction } from "@/lib/actions";
+import { deleteListingAction, toggleStarredAction } from "@/lib/actions";
 import DeleteButton from "../DeleteButton";
+import StarButton from "../StarButton";
 
 function qs(params: Record<string, string | undefined>): string {
   const usp = new URLSearchParams();
@@ -73,6 +74,7 @@ export default async function NicheDetailPage({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-slate-50 text-left">
+              <th className="px-3 py-2"></th>
               <th className="px-3 py-2">City</th>
               <th className="px-3 py-2">State</th>
               <th className="px-3 py-2">Pop.</th>
@@ -85,6 +87,9 @@ export default async function NicheDetailPage({
           <tbody>
             {rows.map((l) => (
               <tr key={l.id} className="border-b last:border-0 align-top hover:bg-slate-50">
+                <td className="px-3 py-2">
+                  <StarButton id={l.id} starred={l.starred} action={toggleStarredAction} />
+                </td>
                 <td className="px-3 py-2 font-medium whitespace-nowrap">{l.city}</td>
                 <td className="px-3 py-2">{l.state ?? "—"}</td>
                 <td className="px-3 py-2">{l.population ? l.population.toLocaleString() : "—"}</td>
@@ -108,14 +113,17 @@ export default async function NicheDetailPage({
         {rows.map((l) => (
           <div key={l.id} className="bg-white border rounded-lg p-4">
             <div className="flex justify-between items-start gap-2">
-              <div>
-                <div className="font-semibold">
-                  {l.city}
-                  {l.state ? `, ${l.state}` : ""}
+              <div className="flex items-start gap-2">
+                <StarButton id={l.id} starred={l.starred} action={toggleStarredAction} size="lg" />
+                <div>
+                  <div className="font-semibold">
+                    {l.city}
+                    {l.state ? `, ${l.state}` : ""}
+                  </div>
+                  {l.population && (
+                    <div className="text-sm text-slate-500">~{l.population.toLocaleString()}</div>
+                  )}
                 </div>
-                {l.population && (
-                  <div className="text-sm text-slate-500">~{l.population.toLocaleString()}</div>
-                )}
               </div>
               {verdictBadge(l.verdict)}
             </div>

@@ -16,11 +16,12 @@ export interface Listing {
   reviews: string;
   verdict: Verdict;
   notes: string;
+  starred: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export type NewListing = Omit<Listing, "id" | "created_at" | "updated_at">;
+export type NewListing = Omit<Listing, "id" | "created_at" | "updated_at" | "starred">;
 
 export const TIERS: Tier[] = [
   "Institutional/B2B",

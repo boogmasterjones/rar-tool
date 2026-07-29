@@ -7,6 +7,7 @@ import {
   updateListing,
   deleteListing,
   bulkInsertListings,
+  toggleStarred,
 } from "./db";
 import { NewListing, Tier, Verdict } from "./types";
 import { parseImportText, ParsedRow } from "./import-parser";
@@ -42,6 +43,13 @@ export async function updateListingAction(id: number, formData: FormData): Promi
 export async function deleteListingAction(id: number): Promise<void> {
   await deleteListing(id);
   revalidatePath("/");
+  revalidatePath("/niche");
+}
+
+export async function toggleStarredAction(id: number): Promise<void> {
+  await toggleStarred(id);
+  revalidatePath("/");
+  revalidatePath("/niche");
 }
 
 export interface ImportResult {

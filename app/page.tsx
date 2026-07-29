@@ -37,6 +37,7 @@ interface NicheGroup {
   verdicts: string[];
   rows: Listing[];
   notes: string;
+  hasStarred: boolean;
 }
 
 function groupByNiche(listings: Listing[]): NicheGroup[] {
@@ -44,13 +45,14 @@ function groupByNiche(listings: Listing[]): NicheGroup[] {
   for (const l of listings) {
     let group = map.get(l.niche);
     if (!group) {
-      group = { niche: l.niche, tiers: [], verdicts: [], rows: [], notes: "" };
+      group = { niche: l.niche, tiers: [], verdicts: [], rows: [], notes: "", hasStarred: false };
       map.set(l.niche, group);
     }
     group.rows.push(l);
     if (!group.tiers.includes(l.tier)) group.tiers.push(l.tier);
     if (!group.verdicts.includes(l.verdict)) group.verdicts.push(l.verdict);
     if (!group.notes && l.notes) group.notes = l.notes;
+    if (l.starred) group.hasStarred = true;
   }
   const groups = Array.from(map.values());
   groups.forEach((g) => g.verdicts.sort((a, b) => (VERDICT_ORDER[a] ?? 9) - (VERDICT_ORDER[b] ?? 9)));
@@ -66,11 +68,12 @@ export default async function Home({
   const tier = typeof searchParams.tier === "string" ? searchParams.tier : undefined;
   const state = typeof searchParams.state === "string" ? searchParams.state : undefined;
   const q = typeof searchParams.q === "string" ? searchParams.q : undefined;
+  const starred = searchParams.starred === "1";
   const sort = typeof searchParams.sort === "string" ? searchParams.sort : "niche";
   const dir = searchParams.dir === "desc" ? "desc" : "asc";
 
   const [listings, states] = await Promise.all([
-    listListings({ verdict, tier, state, q, sort: "niche", dir: "asc" }),
+    listListings({ verdict, tier, state, q, starred, sort: "niche", dir: "asc" }),
     distinctStates(),
   ]);
 
@@ -84,8 +87,7 @@ export default async function Home({
     return dir === "desc" ? -cmp : cmp;
   });
 
-  const currentParams = { verdict, tier, state, q, sort, dir };
-  const backQs = qs(currentParams);
+  const currentParams = { verdict, tier, state, q, starred: starred ? "1" : undefined, sort, dir };
 
   function sortLink(col: string, label: string) {
     const active = sort === col;
@@ -149,18 +151,24 @@ export default async function Home({
             ))}
           </select>
         </div>
-        <div className="flex items-end gap-2">
-          <button type="submit" className="bg-slate-900 text-white rounded px-3 py-1.5 text-sm w-full">
-            Filter
-          </button>
-          <Link href="/" className="text-sm text-slate-500 underline whitespace-nowrap py-1.5">
-            Reset
-          </Link>
+        <div className="col-span-2 md:col-span-5 flex items-center justify-between flex-wrap gap-3">
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input type="checkbox" name="starred" value="1" defaultChecked={starred} className="rounded" />
+            ★ Starred only
+          </label>
+          <div className="flex items-center gap-2">
+            <button type="submit" className="bg-slate-900 text-white rounded px-3 py-1.5 text-sm">
+              Filter
+            </button>
+            <Link href="/" className="text-sm text-slate-500 underline whitespace-nowrap py-1.5">
+              Reset
+            </Link>
+          </div>
         </div>
       </form>
 
       <p className="text-xs text-slate-500 mb-2">
-        {verdict || tier || state || q
+        {verdict || tier || state || q || starred
           ? "Showing niches with at least one matching location. Click a niche to see all locations tested for it."
           : "Click a niche to see all the locations tested for it."}
       </p>
@@ -185,6 +193,7 @@ export default async function Home({
                     href={`/niche${qs({ name: g.niche, ...currentParams })}`}
                     className="text-blue-700 hover:underline"
                   >
+                    {g.hasStarred && <span className="text-amber-500 mr-1">★</span>}
                     {g.niche}
                   </Link>
                 </td>
@@ -218,7 +227,10 @@ export default async function Home({
             className="block bg-white border rounded-lg p-4"
           >
             <div className="flex justify-between items-start gap-2">
-              <div className="font-semibold text-blue-700">{g.niche}</div>
+              <div className="font-semibold text-blue-700">
+                {g.hasStarred && <span className="text-amber-500 mr-1">★</span>}
+                {g.niche}
+              </div>
             </div>
             <div className="text-xs text-slate-400 mt-1">{g.tiers.join(", ")}</div>
             <div className="flex gap-1 flex-wrap mt-2">{g.verdicts.map((v) => verdictBadge(v))}</div>
