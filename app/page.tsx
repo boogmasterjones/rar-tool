@@ -103,6 +103,31 @@ export default async function Home({
     );
   }
 
+  const SORT_OPTIONS: { col: string; label: string }[] = [
+    { col: "niche", label: "Niche" },
+    { col: "tier", label: "Category" },
+    { col: "locations", label: "Locations" },
+  ];
+
+  function sortChip(col: string, label: string) {
+    const active = sort === col;
+    const linkDir = active && dir === "asc" ? "desc" : "asc";
+    return (
+      <Link
+        key={col}
+        href={qs({ ...currentParams, sort: col, dir: linkDir })}
+        className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm border whitespace-nowrap ${
+          active
+            ? "bg-slate-900 text-white border-slate-900"
+            : "bg-white text-slate-600 border-slate-300"
+        }`}
+      >
+        {label}
+        {active ? (dir === "asc" ? " ▲" : " ▼") : ""}
+      </Link>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
@@ -216,6 +241,12 @@ export default async function Home({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile sort controls */}
+      <div className="md:hidden flex items-center gap-2 mb-3 overflow-x-auto pb-1">
+        <span className="text-xs font-medium text-slate-500 whitespace-nowrap">Sort:</span>
+        {SORT_OPTIONS.map((o) => sortChip(o.col, o.label))}
       </div>
 
       {/* Mobile cards */}
