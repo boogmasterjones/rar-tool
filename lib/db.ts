@@ -15,12 +15,23 @@ function getClient(): Client {
 
   if (url) {
     client = createClient({ url, authToken });
-  } else {
+    return client;
+  }
+
+  try {
     const dataDir = path.join(process.cwd(), "data");
     if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
     client = createClient({ url: `file:${path.join(dataDir, "local.db")}` });
+    return client;
+  } catch (err) {
+    throw new Error(
+      "No TURSO_DATABASE_URL is configured, and this environment's filesystem isn't writable " +
+        "(expected on Netlify/Vercel/most serverless hosts — the local SQLite file fallback only " +
+        "works for local development). Create a free Turso database and set TURSO_DATABASE_URL and " +
+        "TURSO_AUTH_TOKEN as environment variables on your host, then redeploy. See SETUP.md for " +
+        `exact steps. Original error: ${err instanceof Error ? err.message : String(err)}`
+    );
   }
-  return client;
 }
 
 async function init(): Promise<void> {
