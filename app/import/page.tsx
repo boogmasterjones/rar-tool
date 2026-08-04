@@ -1,6 +1,13 @@
 import ImportForm from "./ImportForm";
+import ClearAllButton from "./ClearAllButton";
+import { countListings } from "@/lib/db";
+import { clearAllListingsAction } from "@/lib/actions";
 
-export default function ImportPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ImportPage() {
+  const count = await countListings();
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-2">Bulk Import</h1>
@@ -23,6 +30,10 @@ Niche | City | State | Population | Top-3 Reviews | Verdict | Category | Notes
           </li>
           <li><strong>Population</strong> and <strong>Notes</strong> are optional and can be left blank.</li>
           <li>Lines starting with <code>#</code> are ignored, so you can leave the header row in place.</li>
+          <li>
+            Re-importing a niche+city that&apos;s already in the dataset updates that row with your new
+            numbers instead of creating a duplicate.
+          </li>
         </ul>
         <p className="mt-3 font-semibold">Example:</p>
         <pre className="bg-slate-50 border rounded p-3 overflow-x-auto text-xs whitespace-pre-wrap">
@@ -33,6 +44,14 @@ Boiler inspection | Manchester | NH | 115000 | 0, 2, 6 | GOOD | Institutional/B2
       </div>
 
       <ImportForm />
+
+      <div className="mt-10 pt-6 border-t">
+        <h2 className="text-sm font-semibold text-slate-500 mb-2">Danger Zone</h2>
+        <p className="text-sm text-slate-500 mb-3 max-w-2xl">
+          Starting over with a whole new list? Clear everything out first, then paste your new data above.
+        </p>
+        <ClearAllButton count={count} action={clearAllListingsAction} />
+      </div>
     </div>
   );
 }

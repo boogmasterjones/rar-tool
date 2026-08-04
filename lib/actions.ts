@@ -8,6 +8,7 @@ import {
   deleteListing,
   bulkInsertListings,
   toggleStarred,
+  clearAllListings,
 } from "./db";
 import { NewListing, Tier, Verdict } from "./types";
 import { parseImportText, ParsedRow } from "./import-parser";
@@ -48,6 +49,12 @@ export async function deleteListingAction(id: number): Promise<void> {
 
 export async function toggleStarredAction(id: number): Promise<void> {
   await toggleStarred(id);
+  revalidatePath("/");
+  revalidatePath("/niche");
+}
+
+export async function clearAllListingsAction(): Promise<void> {
+  await clearAllListings();
   revalidatePath("/");
   revalidatePath("/niche");
 }

@@ -69,9 +69,16 @@ async function init(): Promise<void> {
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_listings_niche_city ON listings(niche, city)"
   );
 
-  const countRes = await db.execute("SELECT COUNT(*) as c FROM listings");
-  const count = Number(countRes.rows[0].c);
-  if (count === 0) {
+  // Tracks one-time setup facts (currently just "have we ever seeded the
+  // starter dataset"), independent of the listings table's row count — a
+  // deliberate "clear all" shouldn't cause the seed data to silently come
+  // back the next time the table is empty.
+  await db.execute("CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT)");
+  const seededRes = await db.execute({
+    sql: "SELECT value FROM _meta WHERE key = 'seeded'",
+    args: [],
+  });
+  if (seededRes.rows.length === 0) {
     for (const row of SEED_DATA) {
       // INSERT OR IGNORE (rather than a plain INSERT) means this is safe to
       // run from multiple concurrent cold starts without creating duplicates,
@@ -91,6 +98,10 @@ async function init(): Promise<void> {
         ],
       });
     }
+    await db.execute({
+      sql: "INSERT OR IGNORE INTO _meta (key, value) VALUES ('seeded', '1')",
+      args: [],
+    });
   }
 }
 
@@ -272,6 +283,18 @@ export async function deleteListing(id: number): Promise<boolean> {
     args: [id],
   });
   return res.rowsAffected > 0;
+}
+
+export async function clearAllListings(): Promise<number> {
+  const client = await db();
+  const res = await client.execute("DELETE FROM listings");
+  return res.rowsAffected;
+}
+
+export async function countListings(): Promise<number> {
+  const client = await db();
+  const res = await client.execute("SELECT COUNT(*) as c FROM listings");
+  return Number(res.rows[0].c);
 }
 
 export async function bulkInsertListings(rows: NewListing[]): Promise<number> {
