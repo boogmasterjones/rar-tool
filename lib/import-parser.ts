@@ -39,8 +39,8 @@ function normalizeVerdict(raw: string): Verdict | null {
 }
 
 // Expected pipe-delimited format, one listing per line:
-// Niche | City | State | Population | Top-3 Reviews | Verdict | Tier | Notes
-// Tier and Notes are optional (Tier defaults to "Small-Business").
+// Niche | City | State | Population | Top-3 Reviews | Verdict | Category | Notes
+// Category and Notes are optional (Category defaults to "Small-Business").
 // Population may be blank. Lines starting with "#" and a recognized header
 // row are ignored.
 export function parseImportText(text: string): ParseOutcome {

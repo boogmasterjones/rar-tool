@@ -44,17 +44,29 @@ export default function ListingForm({
         </div>
       </div>
 
+      <div>
+        <label className="block text-sm font-medium mb-1">Population (approx.)</label>
+        <input
+          name="population"
+          defaultValue={initial?.population ?? ""}
+          className="w-full border rounded px-3 py-2 text-sm"
+          placeholder="e.g. 235000"
+          inputMode="numeric"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Top-3 reviews *</label>
+        <input
+          name="reviews"
+          required
+          defaultValue={initial?.reviews ?? ""}
+          className="w-full border rounded px-3 py-2 text-sm"
+          placeholder="e.g. 0, 3, 8 (or a range / description)"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Population (approx.)</label>
-          <input
-            name="population"
-            defaultValue={initial?.population ?? ""}
-            className="w-full border rounded px-3 py-2 text-sm"
-            placeholder="e.g. 235000"
-            inputMode="numeric"
-          />
-        </div>
         <div>
           <label className="block text-sm font-medium mb-1">Verdict *</label>
           <select
@@ -67,30 +79,18 @@ export default function ListingForm({
             ))}
           </select>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Category *</label>
-        <select
-          name="tier"
-          defaultValue={initial?.tier ?? "Small-Business"}
-          className="w-full border rounded px-3 py-2 text-sm"
-        >
-          {TIERS.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Top-3 reviews *</label>
-        <input
-          name="reviews"
-          required
-          defaultValue={initial?.reviews ?? ""}
-          className="w-full border rounded px-3 py-2 text-sm"
-          placeholder="e.g. 0, 3, 8 (or a range / description)"
-        />
+        <div>
+          <label className="block text-sm font-medium mb-1">Category *</label>
+          <select
+            name="tier"
+            defaultValue={initial?.tier ?? "Small-Business"}
+            className="w-full border rounded px-3 py-2 text-sm"
+          >
+            {TIERS.map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div>

@@ -204,9 +204,9 @@ export default async function Home({
           <thead>
             <tr className="border-b bg-slate-50 text-left">
               <th className="px-3 py-2">{sortLink("niche", "Niche")}</th>
-              <th className="px-3 py-2">{sortLink("tier", "Category")}</th>
               <th className="px-3 py-2">{sortLink("locations", "Locations")}</th>
               <th className="px-3 py-2">Verdicts</th>
+              <th className="px-3 py-2">{sortLink("tier", "Category")}</th>
               <th className="px-3 py-2">Notes</th>
             </tr>
           </thead>
@@ -222,13 +222,13 @@ export default async function Home({
                     {g.niche}
                   </Link>
                 </td>
-                <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{g.tiers.join(", ")}</td>
                 <td className="px-3 py-2 whitespace-nowrap">
                   {g.rows.length} {g.rows.length === 1 ? "city" : "cities"}
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1 flex-wrap">{g.verdicts.map((v) => verdictBadge(v))}</div>
                 </td>
+                <td className="px-3 py-2 text-slate-500 whitespace-nowrap">{g.tiers.join(", ")}</td>
                 <td className="px-3 py-2 max-w-sm text-slate-500">{g.notes || "—"}</td>
               </tr>
             ))}
@@ -263,11 +263,11 @@ export default async function Home({
                 {g.niche}
               </div>
             </div>
-            <div className="text-xs text-slate-400 mt-1">{g.tiers.join(", ")}</div>
-            <div className="flex gap-1 flex-wrap mt-2">{g.verdicts.map((v) => verdictBadge(v))}</div>
             <div className="text-sm text-slate-600 mt-2">
               {g.rows.length} {g.rows.length === 1 ? "city" : "cities"} tested
             </div>
+            <div className="flex gap-1 flex-wrap mt-2">{g.verdicts.map((v) => verdictBadge(v))}</div>
+            <div className="text-xs text-slate-400 mt-1">{g.tiers.join(", ")}</div>
             {g.notes && <div className="text-sm text-slate-500 mt-1">{g.notes}</div>}
           </Link>
         ))}

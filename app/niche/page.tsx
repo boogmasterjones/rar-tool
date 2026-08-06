@@ -80,6 +80,7 @@ export default async function NicheDetailPage({
               <th className="px-3 py-2">Pop.</th>
               <th className="px-3 py-2">Top-3 Reviews</th>
               <th className="px-3 py-2">Verdict</th>
+              <th className="px-3 py-2">Category</th>
               <th className="px-3 py-2">Notes</th>
               <th className="px-3 py-2"></th>
             </tr>
@@ -95,6 +96,7 @@ export default async function NicheDetailPage({
                 <td className="px-3 py-2">{l.population ? l.population.toLocaleString() : "—"}</td>
                 <td className="px-3 py-2 max-w-xs">{l.reviews}</td>
                 <td className="px-3 py-2">{verdictBadge(l.verdict)}</td>
+                <td className="px-3 py-2 whitespace-nowrap text-slate-500">{l.tier}</td>
                 <td className="px-3 py-2 max-w-xs text-slate-500">{l.notes || "—"}</td>
                 <td className="px-3 py-2 whitespace-nowrap">
                   <Link href={`/listings/${l.id}/edit`} className="text-blue-600 hover:underline mr-3">
@@ -130,6 +132,7 @@ export default async function NicheDetailPage({
             <div className="text-sm mt-2">
               <span className="font-medium">Top-3:</span> {l.reviews}
             </div>
+            <div className="text-xs text-slate-400 mt-1">{l.tier}</div>
             {l.notes && <div className="text-sm text-slate-500 mt-1">{l.notes}</div>}
             <div className="mt-3 flex gap-3">
               <Link href={`/listings/${l.id}/edit`} className="text-blue-600 text-sm hover:underline">
